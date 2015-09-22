@@ -16,6 +16,8 @@
         
     <!-- android -->
     <platform name="android">
+        <framework src="build-extras.gradle" custom="true" type="gradleReference" />
+        
         <source-file src="src/main/java/com/scispike/callback/Callback.java" target-dir="src/com/scispike/callback/" /> 
         <source-file src="src/main/java/com/scispike/callback/Event.java" target-dir="src/com/scispike/callback/" /> 
         <source-file src="src/main/java/com/scispike/callback/EventEmitter.java" target-dir="src/com/scispike/callback/" /> 
