@@ -31,12 +31,10 @@ public class MqttWrapper {
 			throw new RuntimeException(e);
 		}
 		socketClient.setCallback(new MqttCallback() {
-
-			public void messageArrived(String arg0, MqttMessage arg1)
+			public void messageArrived(String topic, MqttMessage message)
 					throws Exception {
-				String msg = new String(arg1.getPayload());
-				System.out.println("message arrived " + arg0 + " - " + msg);
-				emit("event", msg);
+				String msg = new String(message.getPayload());
+				emit(topic, msg);
 			}
 
 			public void deliveryComplete(IMqttDeliveryToken arg0) {

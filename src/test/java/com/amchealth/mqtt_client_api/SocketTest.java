@@ -99,7 +99,7 @@ public class SocketTest {
 		final CountDownLatch signal = new CountDownLatch(1);
 
 		EventEmitter<String> connectEmitter = socket.getConnectEmitter();
-		connectEmitter.on("event", new Event<String>() {
+		connectEmitter.on("defaultTopicResponses", new Event<String>() {
 			@Override
 			public void onEmit(String... data) {
 				signal.countDown();
@@ -107,7 +107,8 @@ public class SocketTest {
 		});
 
 		socket.connect();
-		socket.send("test message");
+		socket.subscribe("defaultTopicResponses");
+		socket.publish("defaultTopic","test message");
 
 		try {
 			signal.await(2, UNIT);

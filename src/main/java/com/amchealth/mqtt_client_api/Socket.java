@@ -23,7 +23,7 @@ public class Socket {
 
 	public Socket(String baseURL, String clientId, SSLContext sslContext) {
 		this.baseURL = baseURL;
-		this.clientId = clientId; //TODO ??
+		this.clientId = clientId;
 		this.socketClient = getMQTTClient();
 		this.socketClient.setSSLContext(sslContext);
 		this.emitter = new EventEmitter<String>();
@@ -40,16 +40,15 @@ public class Socket {
 
 	public void connect() {
 		socketClient.connect(emitter);
-		socketClient.subscribe("defaultTopicResponses");// TODO topic
 	}
 
 	public boolean isConnected() {
 		return socketClient != null && socketClient.isConnected();
 	}
 
-	public void send(String string) {
+	public void publish(String topic,String string) {
 		MqttMessage message = new MqttMessage(string.getBytes());
-		socketClient.publish("defaultTopic", message); // TODO topic
+		socketClient.publish(topic, message);
 	}
 
 	public EventEmitter<String> getConnectEmitter() {
@@ -59,6 +58,10 @@ public class Socket {
 	public void disconnect() {
 		socketClient.disconnect(emitter);
 		socketClient = null;
+	}
+
+	public void subscribe(String topic) {
+		socketClient.subscribe(topic);
 	}
 
 }
