@@ -3,9 +3,12 @@ package com.amchealth.mqtt_client_api;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import javax.net.ssl.SSLContext;
+
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
@@ -17,6 +20,8 @@ public class MqttWrapper {
 	final Set<EventEmitter<String>> eventEmitters = new LinkedHashSet<EventEmitter<String>>();
 
 	MqttClient socketClient;
+
+	private SSLContext sslContext;
 
 	MqttWrapper(String baseURL, String clientId) {
 		try {
@@ -48,8 +53,13 @@ public class MqttWrapper {
 
 	public void connect(EventEmitter<String> emitter) {
 		if (!isConnected()) {
+			MqttConnectOptions options = new MqttConnectOptions();
+			if(sslContext != null)
+				options.setSocketFactory(sslContext.getSocketFactory());
 			try {
-				socketClient.connect();
+				socketClient.connect(options);
+				eventEmitters.add(emitter);
+				emitter.emit("socket::connected");
 			} catch (MqttSecurityException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -57,10 +67,13 @@ public class MqttWrapper {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		} else {
+			eventEmitters.add(emitter);
+			emitter.emit("socket::connected");
 		}
-		eventEmitters.add(emitter);
 	}
 
+	
 	public void subscribe(String topic) {
 		try {
 			socketClient.subscribe(topic);
@@ -104,10 +117,15 @@ public class MqttWrapper {
 		eventEmitter.removeAllListeners();
 
 	}
-
+	
 	private void emit(String message, String... data) {
 		for (EventEmitter<String> e : eventEmitters) {
 			e.emit(message, data);
 		}
 	}
+
+	public void setSSLContext(SSLContext sslContext) {
+		this.sslContext = sslContext;
+	}
+	
 }
