@@ -1,6 +1,5 @@
 package com.scispike.conversation;
 
-import java.lang.Character.UnicodeScript;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -11,6 +10,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.amchealth.mqtt_client_api.Socket;
+import com.amchealth.test.Util;
 import com.scispike.callback.Callback;
 import com.scispike.callback.Event;
 import com.scispike.callback.EventEmitter;
@@ -28,9 +28,10 @@ public class AgentTest {
   @Test
   public void testConnect(){
     final CountDownLatch signal = new CountDownLatch(1);
-    Socket socket = new Socket("tcp://localhost:3000", "clientId"+UUID.randomUUID().toString());
+    Socket socket = Util.getSocket();
     EventEmitter<String> connectEmitter = socket.getConnectEmitter();
-    final Agent agent = new Agent("test.obj", socket, UUID.randomUUID().toString());
+    String agentId = UUID.randomUUID().toString();
+    final Agent agent = new Agent("test.obj", socket, agentId);
     agent.on("error", new Event<JSONObject>() {
       @Override
       public void onEmit(JSONObject... data) {
@@ -86,8 +87,8 @@ public class AgentTest {
       }
     });
     socket.connect();
-    socket.subscribe("test.obj::running");
-    socket.subscribe("test.obj::null");
+    socket.subscribe("test.obj:state:running:"+agentId);
+    socket.subscribe("test.obj:state:null:"+agentId);
     try {
       signal.await(2, TimeUnit.SECONDS);// wait for connect
       Assert.assertEquals("should have gotten to running",0, signal.getCount());

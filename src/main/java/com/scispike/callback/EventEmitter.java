@@ -1,6 +1,5 @@
 package com.scispike.callback;
 
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -43,7 +42,6 @@ public class EventEmitter<S> {
 
   public Callback<S, S> on(final S msg, final Event<S> cb) {
     Callback<S, S> off = new Callback<S, S>() {
-      @SuppressWarnings("unchecked")
       @Override
       public void call(S error, S... args) {
         listeners.get(msg).remove(cb);
@@ -64,6 +62,7 @@ public class EventEmitter<S> {
     Set<Event<S>> set = listeners.get(msg);
     if(set != null && set.size()>0){
       Event<S>[] events = set.toArray(new Event[] {});
+      System.out.println(events.length+" events for "+msg);
       for (Event<S> cb : events) {
         cb.onEmit(data);
       }

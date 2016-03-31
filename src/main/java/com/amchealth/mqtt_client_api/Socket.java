@@ -14,25 +14,24 @@ public class Socket {
 
 	private EventEmitter<String> emitter = null;
 	private String baseURL;
-	private String clientId;
 	MqttWrapper socketClient;
 
-	public Socket(String baseURL, String clientId) {
-		this(baseURL,clientId,null);
+	public Socket(String baseURL,final AuthFunction authFunciton) {
+		this(baseURL,authFunciton,null);
 	}
 
-	public Socket(String baseURL, String clientId, SSLContext sslContext) {
+	public Socket(String baseURL,final AuthFunction authFunciton, SSLContext sslContext) {
 		this.baseURL = baseURL;
-		this.clientId = clientId;
 		this.socketClient = getMQTTClient();
 		this.socketClient.setSSLContext(sslContext);
+		this.socketClient.setAuthFunction(authFunciton);
 		this.emitter = new EventEmitter<String>();
 	}
 
 	private synchronized MqttWrapper getMQTTClient() {
 		MqttWrapper socket = globalSockets.get(baseURL);
 		if (socket == null) {
-			socket = new MqttWrapper(baseURL, clientId);
+			socket = new MqttWrapper(baseURL);
 			globalSockets.put(baseURL, socket);
 		}
 		return socket;
@@ -47,6 +46,7 @@ public class Socket {
 	}
 
 	public void publish(String topic,String string) {
+		System.out.println("publishing "+topic+"->"+string);
 		MqttMessage message = new MqttMessage(string.getBytes());
 		socketClient.publish(topic, message);
 	}

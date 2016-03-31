@@ -9,123 +9,131 @@ import com.scispike.callback.Event;
 import com.scispike.callback.EventEmitter;
 
 public class Agent {
-  private String agent;
-  private Socket socket;
-  private EventEmitter<String> eventEmitter;
-  private JSONObject agentData;
+	private String agent;
+	private Socket socket;
+	private EventEmitter<String> eventEmitter;
+	private JSONObject agentData;
 
-  static void jsonPut(JSONObject json, String key, String value) {
-    try {
-      json.put(key, value);
-    } catch (JSONException e) {
-      throw new RuntimeException(e);
-    }
-  }
+	static void jsonPut(JSONObject json, String key, String value) {
+		try {
+			json.put(key, value);
+		} catch (JSONException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-  static void jsonPut(JSONObject json, String key, JSONObject value) {
-    try {
-      json.put(key, value);
-    } catch (JSONException e) {
-      throw new RuntimeException(e);
-    }
-  }
+	static void jsonPut(JSONObject json, String key, JSONObject value) {
+		try {
+			json.put(key, value);
+		} catch (JSONException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-  static Object jsonGet(JSONObject json, String key) {
-    try {
-      return json.get(key);
-    } catch (JSONException e) {
-      throw new RuntimeException(e);
-    }
-  }
+	static Object jsonGet(JSONObject json, String key) {
+		try {
+			return json.get(key);
+		} catch (JSONException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-  static JSONObject wrapData(String data) {
-    try {
-      return new JSONObject(data);
-    } catch (JSONException e) {
-      throw new RuntimeException(e);
-    }
-  }
+	static JSONObject wrapData(String data) {
+		try {
+			return new JSONObject(data);
+		} catch (JSONException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-  static JSONObject wrapId(String _id) {
-    JSONObject wrapped = new JSONObject();
-    jsonPut(wrapped, "_id", _id);
-    return wrapped;
-  }
+	static JSONObject wrapId(String _id) {
+		JSONObject wrapped = new JSONObject();
+		jsonPut(wrapped, "_id", _id);
+		return wrapped;
+	}
 
-  public Agent(String agent, Socket socket, String _id) {
-    this(agent, socket, wrapId(_id));
-  }
+	public Agent(String agent, Socket socket, String _id) {
+		this(agent, socket, wrapId(_id));
+	}
 
-  public Agent(String agent, Socket socket, JSONObject agentData) {
-    this.agent = agent;
-    this.socket = socket;
-    this.eventEmitter = socket.getConnectEmitter();
-    this.agentData = agentData;
-  }
+	public Agent(String agent, Socket socket, JSONObject agentData) {
+		this.agent = agent;
+		this.socket = socket;
+		this.eventEmitter = socket.getConnectEmitter();
+		this.agentData = agentData;
+	}
 
-  public void init(Callback<String, String> cb) {
-    JSONObject msg = new JSONObject();
-    String event = agent + "::init";
-	jsonPut(msg, "event", event);
-    jsonPut(msg, "data", agentData);
-    socket.publish(event,msg.toString());
-  }
-  
-  public void listenForEvent(String event){
-	  socket.subscribe(agent+"::"+event);
-  }
-  
-  public void send(String event, JSONObject eventData,
-      Callback<String, String> cb) {
-    emit(event, eventData, cb);
-  }
+	public void init(Callback<String, String> cb) {
+		JSONObject msg = new JSONObject();
+		String event = agent + "::init";
+		jsonPut(msg, "event", event);
+		jsonPut(msg, "data", agentData);
+		socket.publish(event, msg.toString());
+	}
 
-  public void emit(String event, JSONObject eventData,
-      Callback<String, String> cb) {
-    JSONObject msg = new JSONObject();
-    String fullEvent = agent + "::" + event;
-	jsonPut(msg, "event", fullEvent);
+	public void listenForEvent(String event) {
+		socket.subscribe(agent + "::" + event);
+	}
 
-    JSONObject data = new JSONObject();
-    jsonPut(msg, "data", data);
+	public void send(String event, JSONObject eventData,
+			Callback<String, String> cb) {
+		emit(event, eventData, cb);
+	}
 
-    jsonPut(data, "agentData", agentData);
-    if (eventData != null) {
-      jsonPut(data, "data", eventData);
-    }
+	public void emit(String event, JSONObject eventData,
+			Callback<String, String> cb) {
+		JSONObject msg = new JSONObject();
+		String fullEvent = agent + "::" + event;
+		jsonPut(msg, "event", fullEvent);
 
-    socket.publish(fullEvent,msg.toString());
-  }
+		JSONObject data = new JSONObject();
+		jsonPut(msg, "data", data);
 
-  public Callback<String, String> on(String event, final Event<JSONObject> cb) {
-    return eventEmitter.on(
-        agent + ":state:" + event + ":" + jsonGet(agentData, "_id"),
-        eventCB(cb));
-  }
+		jsonPut(data, "agentData", agentData);
+		if (eventData != null) {
+			jsonPut(data, "data", eventData);
+		}
 
-  public Callback<String, String> once(String event, final Event<JSONObject> cb) {
-    return eventEmitter.once(
-        agent + ":state:" + event + ":" + jsonGet(agentData, "_id"),
-        eventCB(cb));
-  }
+		socket.publish(fullEvent, msg.toString());
+	}
 
-  private Event<String> eventCB(final Event<JSONObject> cb) {
-    return new Event<String>() {
+	public Callback<String, String> on(String event, final Event<JSONObject> cb) {
+		return eventEmitter.on(
+				agent + ":state:" + event + ":" + jsonGet(agentData, "_id"),
+				eventCB(cb));
+	}
 
-      @Override
-      public void onEmit(String... data) {
-        if (data.length > 0 && data[0] != null && data[0] != "null") {
-          JSONObject jsonObject = wrapData(data[0]);
-          cb.onEmit(jsonObject);
-        } else {
-          cb.onEmit();
-        }
-      }
+	public Callback<String, String> once(String event,
+			final Event<JSONObject> cb) {
+		System.out.println("once: " + agent + ":state:" + event + ":"
+				+ jsonGet(agentData, "_id"));
+		return eventEmitter.once(
+				agent + ":state:" + event + ":" + jsonGet(agentData, "_id"),
+				eventCB(cb));
+	}
 
-    };
-  }
-  public void disconnect(){
-    eventEmitter.removeAllListeners();
-  }
+	private Event<String> eventCB(final Event<JSONObject> cb) {
+		return new Event<String>() {
+
+			@Override
+			public void onEmit(String... data) {
+				System.out.println("on envetCB data:"
+						+ (data != null ? data[0] : "no data"));
+				if (data.length > 0 && data[0] != null && !"null".equals(data[0]) ) {
+					System.out.println("wrapped data");
+					JSONObject jsonObject = wrapData(data[0]);
+					cb.onEmit(jsonObject);
+				} else {
+					System.out.println("no data");
+					cb.onEmit();
+				}
+			}
+
+		};
+	}
+
+	public void disconnect() {
+		eventEmitter.removeAllListeners();
+	}
 
 }

@@ -1,38 +1,38 @@
 package com.amchealth.mqtt_client_api;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
-import com.amchealth.test.UtilSsl;
+import com.amchealth.test.Util;
 import com.scispike.callback.Event;
 import com.scispike.callback.EventEmitter;
 
 public class SocketTest {
 
 	private static final TimeUnit UNIT = TimeUnit.SECONDS;
-	static final String URL = "tcp://localhost:3000";
 	private Socket socket;
 
 	@Before
 	public void setUpTestSocket() {
-		socket = createTestSocket();
-	}
-
-	private Socket createTestSocket() {
-		return new Socket(URL, "clientId");//, UtilSsl.getSslContext());
+		socket = Util.getSocket();
 	}
 
 	@After
 	public void tearDownTestSocket() {
-		if (socket.isConnected())
+		if (socket.isConnected()) {
 			socket.disconnect();
+		}
 	}
 
 	@Test
@@ -61,6 +61,32 @@ public class SocketTest {
 			assertEquals(0, signal.getCount());
 		} catch (InterruptedException e) {
 			Assert.fail(e.getMessage());
+		}
+	}
+
+	@Test
+	public void shouldBeAbleToReconnect() {
+		final CountDownLatch signal = new CountDownLatch(1);
+		Socket reconnectiongSocket = Util.getSocket(new AtomicInteger(5));
+		EventEmitter<String> connectEmitter = reconnectiongSocket
+				.getConnectEmitter();
+		connectEmitter.on("socket::connected", new Event<String>() {
+			@Override
+			public void onEmit(String... data) {
+				signal.countDown();
+			}
+		});
+
+		reconnectiongSocket.connect();
+
+		try {
+			signal.await(5, UNIT);
+			assertTrue(reconnectiongSocket.isConnected());
+			assertEquals(0, signal.getCount());
+		} catch (InterruptedException e) {
+			Assert.fail(e.getMessage());
+		} finally {
+			reconnectiongSocket.disconnect();
 		}
 	}
 
@@ -95,6 +121,7 @@ public class SocketTest {
 	}
 
 	@Test
+	@Ignore
 	public void shouldBeAbleToPublishAMessage() {
 		final CountDownLatch signal = new CountDownLatch(1);
 
@@ -108,7 +135,7 @@ public class SocketTest {
 
 		socket.connect();
 		socket.subscribe("defaultTopicResponses");
-		socket.publish("defaultTopic","test message");
+		socket.publish("defaultTopic", "test message");
 
 		try {
 			signal.await(2, UNIT);
@@ -120,12 +147,61 @@ public class SocketTest {
 	}
 
 	@Test
+	// @Ignore
+	public void shouldBeAbleToStayConnectedFor15sec() {
+		final CountDownLatch signal = new CountDownLatch(2);
+
+		EventEmitter<String> connectEmitter = socket.getConnectEmitter();
+		connectEmitter.on("socket::connected", new Event<String>() {
+			@Override
+			public void onEmit(String... data) {
+				signal.countDown();
+			}
+		});
+
+		socket.connect();
+		for (int i = 0; i < 10; i++) {
+			System.out.println("subscribing " + i);
+			socket.subscribe("agent::event" + i);
+			try {
+				Thread.sleep(10000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+
+		try {
+			signal.await(2, UNIT);
+			assertTrue(socket.isConnected());
+			assertEquals(1, signal.getCount());
+		} catch (InterruptedException e) {
+			Assert.fail(e.getMessage());
+		}
+	}
+
+	@Test
+	// @Ignore
+	public void shouldBeAbleToStayConnectedWhileTransmitting() {
+		socket.connect();
+		for (int i = 0; i < 10; i++) {
+			System.out.println("publishing");
+			socket.publish("agent::event", "{}");
+			try {
+				Thread.sleep(10000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		assertTrue(socket.isConnected());
+	}
+
+	@Test
 	public void shouldHandleMultipleConnections() throws InterruptedException {
 		final CountDownLatch connectState = new CountDownLatch(2);
 		final CountDownLatch disconnectState1 = new CountDownLatch(1);
 		final CountDownLatch disconnectState2 = new CountDownLatch(1);
 		MqttWrapper socketClient = socket.socketClient;
-		Socket socket2 = createTestSocket();
+		Socket socket2 = Util.getSocket();
 		EventEmitter<String> connectEmitter1 = socket.getConnectEmitter();
 		EventEmitter<String> connectEmitter2 = socket2.getConnectEmitter();
 
