@@ -8,7 +8,7 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 
-import com.scispike.callback.Callback;
+import com.amchealth.callback.Callback;
 import com.amchealth.mqtt_client_api.AuthFunction;
 import com.amchealth.mqtt_client_api.Socket;
 

@@ -17,8 +17,8 @@ import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
-import com.scispike.callback.Callback;
-import com.scispike.callback.EventEmitter;
+import com.amchealth.callback.Callback;
+import com.amchealth.callback.EventEmitter;
 
 public class MqttWrapper {
 	final Set<EventEmitter<String>> eventEmitters = new LinkedHashSet<EventEmitter<String>>();

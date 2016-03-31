@@ -7,7 +7,7 @@ import javax.net.ssl.SSLContext;
 
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-import com.scispike.callback.EventEmitter;
+import com.amchealth.callback.EventEmitter;
 
 public class Socket {
 	static final Map<String, MqttWrapper> globalSockets = new Hashtable<String, MqttWrapper>();

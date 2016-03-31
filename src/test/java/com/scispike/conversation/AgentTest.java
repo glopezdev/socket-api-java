@@ -9,11 +9,12 @@ import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.amchealth.callback.Callback;
+import com.amchealth.callback.Event;
+import com.amchealth.callback.EventEmitter;
+import com.amchealth.conversation.Agent;
 import com.amchealth.mqtt_client_api.Socket;
 import com.amchealth.test.Util;
-import com.scispike.callback.Callback;
-import com.scispike.callback.Event;
-import com.scispike.callback.EventEmitter;
 
 /*
  * Prior to running this tests you should:

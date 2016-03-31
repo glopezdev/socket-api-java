@@ -1,4 +1,4 @@
-package com.scispike.callback;
+package com.amchealth.callback;
 
 import java.util.Hashtable;
 import java.util.LinkedHashSet;
@@ -62,7 +62,6 @@ public class EventEmitter<S> {
     Set<Event<S>> set = listeners.get(msg);
     if(set != null && set.size()>0){
       Event<S>[] events = set.toArray(new Event[] {});
-      System.out.println(events.length+" events for "+msg);
       for (Event<S> cb : events) {
         cb.onEmit(data);
       }

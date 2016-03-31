@@ -14,9 +14,9 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import com.amchealth.callback.Event;
+import com.amchealth.callback.EventEmitter;
 import com.amchealth.test.Util;
-import com.scispike.callback.Event;
-import com.scispike.callback.EventEmitter;
 
 public class SocketTest {
 

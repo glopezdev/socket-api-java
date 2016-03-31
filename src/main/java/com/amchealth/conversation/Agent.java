@@ -1,12 +1,12 @@
-package com.scispike.conversation;
+package com.amchealth.conversation;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.amchealth.callback.Callback;
+import com.amchealth.callback.Event;
+import com.amchealth.callback.EventEmitter;
 import com.amchealth.mqtt_client_api.Socket;
-import com.scispike.callback.Callback;
-import com.scispike.callback.Event;
-import com.scispike.callback.EventEmitter;
 
 public class Agent {
 	private String agent;
@@ -105,8 +105,6 @@ public class Agent {
 
 	public Callback<String, String> once(String event,
 			final Event<JSONObject> cb) {
-		System.out.println("once: " + agent + ":state:" + event + ":"
-				+ jsonGet(agentData, "_id"));
 		return eventEmitter.once(
 				agent + ":state:" + event + ":" + jsonGet(agentData, "_id"),
 				eventCB(cb));
@@ -117,14 +115,11 @@ public class Agent {
 
 			@Override
 			public void onEmit(String... data) {
-				System.out.println("on envetCB data:"
-						+ (data != null ? data[0] : "no data"));
-				if (data.length > 0 && data[0] != null && !"null".equals(data[0]) ) {
-					System.out.println("wrapped data");
+				if (data.length > 0 && data[0] != null
+						&& !"null".equals(data[0])) {
 					JSONObject jsonObject = wrapData(data[0]);
 					cb.onEmit(jsonObject);
 				} else {
-					System.out.println("no data");
 					cb.onEmit();
 				}
 			}
