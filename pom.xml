@@ -26,6 +26,16 @@
 			<artifactId>org.eclipse.paho.client.mqttv3</artifactId>
 			<version>1.0.2</version>
 		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty.websocket</groupId>
+			<artifactId>websocket-client</artifactId>
+			<version>9.2.14.v20151106</version>
+		</dependency>
+		<dependency>
+			<groupId>io.inventit.dev</groupId>
+			<artifactId>mqtt-websocket-java</artifactId>
+			<version>1.0.1</version>
+		</dependency>
 		<!-- This version is required to ensure android compatibility. -->
 		<dependency>
 			<groupId>org.json</groupId>
@@ -36,6 +46,12 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-httpclient</groupId>
+			<artifactId>commons-httpclient</artifactId>
+			<version>3.1</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

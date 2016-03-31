@@ -147,7 +147,7 @@ public class SocketTest {
 	}
 
 	@Test
-	// @Ignore
+	@Ignore
 	public void shouldBeAbleToStayConnectedFor15sec() {
 		final CountDownLatch signal = new CountDownLatch(2);
 
@@ -180,7 +180,7 @@ public class SocketTest {
 	}
 
 	@Test
-	// @Ignore
+	@Ignore
 	public void shouldBeAbleToStayConnectedWhileTransmitting() {
 		socket.connect();
 		for (int i = 0; i < 10; i++) {
